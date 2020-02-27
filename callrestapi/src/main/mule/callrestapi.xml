@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4c1fca4b-bf6c-4b89-bcc6-4877035b0dfa" >
+		<http:listener-connection host="localhost" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="d9e03e83-0745-49d1-bee5-fa1f373c3df8" basePath="/api">
+		<http:request-connection host="restapicall.us-e2.cloudhub.io" port="80" >
+			<http:authentication >
+				<http:basic-authentication username="mule" password="mule" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<flow name="callrestapiFlow" doc:id="a9dad1bb-830b-4796-9c32-74b766733272" >
+		<http:listener doc:name="Listener" doc:id="158023a0-b888-4936-b694-2d4612d6a850" config-ref="HTTP_Listener_config" path="/restapi">
+			<http:error-response >
+				<http:body ><![CDATA[#[output text/plain --- payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<http:request method="GET" doc:name="Request" doc:id="86a2c7d5-70f4-40c7-842c-b4679a33dce8" config-ref="HTTP_Request_configuration" path="/test">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	client_secret : attributes.queryParams.client_secret,
+	client_id : attributes.queryParams.client_id
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="9a81f48b-0da4-45a7-9a79-0e914f290672" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="49daf955-cb52-43d7-9bca-755555b8e164" type="HTTP:UNAUTHORIZED">
+				<set-payload value='#["enter correct username or password"]' doc:name="Set Payload" doc:id="4b657ec9-a69f-45bc-94a7-c78efbdfc251" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
