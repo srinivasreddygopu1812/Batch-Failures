@@ -39,7 +39,7 @@ payload]]></ee:set-payload>
 		</ee:transform>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="49daf955-cb52-43d7-9bca-755555b8e164" type="HTTP:UNAUTHORIZED">
-				<set-payload value='#["enter correct username or password"]' doc:name="Set Payload" doc:id="4b657ec9-a69f-45bc-94a7-c78efbdfc251" />
+				<set-payload value='#["enter correct credentials"]' doc:name="Set Payload" doc:id="4b657ec9-a69f-45bc-94a7-c78efbdfc251" />
 			</on-error-propagate>
 		</error-handler>
 	</flow>
